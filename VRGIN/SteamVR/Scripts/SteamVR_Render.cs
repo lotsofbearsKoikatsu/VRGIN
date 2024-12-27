@@ -400,18 +400,19 @@ public class SteamVR_Render : MonoBehaviour
 		QualitySettings.maxQueuedFrames = -1;
 		QualitySettings.vSyncCount = 0; // this applies to the companion window
 
-		if (lockPhysicsUpdateRateToRenderFrequency && Time.timeScale > 0.0f)
-		{
-			var vr = SteamVR.instance;
-			if (vr != null)
-			{
-				var timing = new Compositor_FrameTiming();
-				timing.m_nSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Compositor_FrameTiming));
-				vr.compositor.GetFrameTiming(ref timing, 0);
+		// No need to force it, we might want to keep it mild at times as it can get VERY expensive in koik.
+		//if (lockPhysicsUpdateRateToRenderFrequency && Time.timeScale > 0.0f)
+		//{
+		//	var vr = SteamVR.instance;
+		//	if (vr != null)
+		//	{
+		//		var timing = new Compositor_FrameTiming();
+		//		timing.m_nSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Compositor_FrameTiming));
+		//		vr.compositor.GetFrameTiming(ref timing, 0);
 
-				Time.fixedDeltaTime = Time.timeScale / vr.hmd_DisplayFrequency;
-			}
-		}
+		//		Time.fixedDeltaTime = Time.timeScale / vr.hmd_DisplayFrequency;
+		//	}
+		//}
 	}
 }
 
