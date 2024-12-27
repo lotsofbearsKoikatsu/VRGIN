@@ -70,8 +70,9 @@ namespace VRGIN.Controls
         private bool _Started = false;
 
         public SteamVR_TrackedObject Tracking;
+        public SteamVR_Controller Steam;
         public SteamVR_RenderModel Model { get; private set; }
-        protected BoxCollider Collider;
+        //public BoxCollider Collider;
 
         private float? appButtonPressTime;
 
@@ -79,13 +80,13 @@ namespace VRGIN.Controls
         public List<Tool> Tools = new List<Tool>();
 
         public Controller Other;
-        private const float APP_BUTTON_TIME_THRESHOLD = 0.5f; // seconds
-        private bool helpShown;
-        private List<HelpText> helpTexts;
+        //private const float APP_BUTTON_TIME_THRESHOLD = 0.5f; // seconds
+        //private bool helpShown;
+        //private List<HelpText> helpTexts;
 
-        private Canvas _Canvas;
+        //private Canvas _Canvas;
         private Lock _Lock = Lock.Invalid;
-        private GameObject _AlphaConcealer;
+        //private GameObject _AlphaConcealer;
 
 
         public RumbleManager Rumble { get; private set; }
@@ -150,16 +151,15 @@ namespace VRGIN.Controls
             if (!keepTool)
             {
                 ToolEnabled = false;
-                _AlphaConcealer.SetActive(false);
+                //_AlphaConcealer.SetActive(false);
             }
         }
-
         protected virtual void OnUnlock(bool keepTool)
         {
             if (!keepTool)
             {
                 ToolEnabled = true;
-                _AlphaConcealer.SetActive(true);
+                //_AlphaConcealer.SetActive(true);
             }
         }
 
@@ -177,7 +177,9 @@ namespace VRGIN.Controls
             Tracking = gameObject.AddComponent<SteamVR_TrackedObject>();
             Rumble = gameObject.AddComponent<RumbleManager>();
             gameObject.AddComponent<BodyRumbleHandler>();
-            gameObject.AddComponent<MenuHandler>();
+
+            // Implemented in kk for better control.
+            //gameObject.AddComponent<MenuHandler>();
 
             // Add model
             Model = new GameObject("Model").AddComponent<SteamVR_RenderModel>();
@@ -189,19 +191,19 @@ namespace VRGIN.Controls
             Model.transform.SetParent(transform, false);
             //Model.verbose = true;
 
-            BuildCanvas();
+        //    BuildCanvas();
 
-            // Add Physics
-            Collider = new GameObject("Collider").AddComponent<BoxCollider>();
-            Collider.transform.SetParent(transform, false);
-            Collider.center = new Vector3(0, -0.02f, -0.06f);
-            Collider.size = new Vector3(0.05f, 0.05f, 0.2f);
-            Collider.isTrigger = true;
+        //    // Add Physics
+        //    Collider = new GameObject("Collider").AddComponent<BoxCollider>();
+        //    Collider.transform.SetParent(transform, false);
+        //    Collider.center = new Vector3(0, -0.02f, -0.06f);
+        //    Collider.size = new Vector3(0.05f, 0.05f, 0.2f);
+        //    Collider.isTrigger = true;
 
-            gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        //    gameObject.AddComponent<Rigidbody>().isKinematic = true;
         }
 
-		private void _OnRenderModelLoaded(SteamVR_RenderModel model, bool isLoaded)
+        private void _OnRenderModelLoaded(SteamVR_RenderModel model, bool isLoaded)
         {
             try
             {
@@ -220,6 +222,7 @@ namespace VRGIN.Controls
 
 		private void OnRenderModelLoaded()
         {
+
             //PlaceCanvas();
         }
 
@@ -235,7 +238,7 @@ namespace VRGIN.Controls
             {
                 var newTool = gameObject.AddComponent(toolType) as Tool;
                 Tools.Add(newTool);
-                CreateToolCanvas(newTool);
+                //CreateToolCanvas(newTool);
 
                 newTool.enabled = false;
             }
@@ -305,17 +308,17 @@ namespace VRGIN.Controls
                 if (ActiveTool != null)
                 {
                     ActiveTool.enabled = value;
-                    if (!value)
-                    {
-                        HideHelp();
-                    }
+                    //if (!value)
+                    //{
+                    //    HideHelp();
+                    //}
                 }
             }
 
         }
 
         /// <summary>
-        /// Gets whether or not the attached controlller is tracking.
+        /// Gets whether or not the attached controller is tracking.
         /// </summary>
         public bool IsTracking
         {
@@ -339,47 +342,10 @@ namespace VRGIN.Controls
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            var device = SteamVR_Controller.Input((int)Tracking.index);
 
             if (_Lock != null && _Lock.IsInvalidating)
             {
                 TryReleaseLock();
-            }
-
-            if (_Lock == null || !_Lock.IsValid || _Lock.KeepsTool)
-            {
-                if (device.GetPressDown(EVRButtonId.k_EButton_ApplicationMenu))
-                {
-                    appButtonPressTime = Time.unscaledTime;
-                }
-                if (device.GetPress(EVRButtonId.k_EButton_ApplicationMenu) && (Time.unscaledTime - appButtonPressTime) > APP_BUTTON_TIME_THRESHOLD)
-                {
-                    ShowHelp();
-                    appButtonPressTime = null;
-                }
-                if (device.GetPressUp(EVRButtonId.k_EButton_ApplicationMenu))
-                {
-                    if (helpShown)
-                    {
-                        HideHelp();
-                    }
-                    else
-                    {
-                        if (ActiveTool)
-                        {
-                            ActiveTool.enabled = false;
-                        }
-
-                        ToolIndex = (ToolIndex + 1) % Tools.Count;
-
-                        if (ActiveTool)
-                        {
-                            ActiveTool.enabled = true;
-                        }
-                    }
-                    appButtonPressTime = null;
-
-                }
             }
         }
 
@@ -406,49 +372,49 @@ namespace VRGIN.Controls
             Rumble.StopRumble(session);
         }
 
-        private void HideHelp()
-        {
-            if (helpShown)
-            {
-                helpTexts.ForEach(h => Destroy(h.gameObject));
-                helpShown = false;
-            }
-        }
+        //private void HideHelp()
+        //{
+        //    if (helpShown)
+        //    {
+        //        helpTexts.ForEach(h => Destroy(h.gameObject));
+        //        helpShown = false;
+        //    }
+        //}
 
-        private void ShowHelp()
-        {
-            if (ActiveTool != null)
-            {
-                helpTexts = ActiveTool.GetHelpTexts();
-                helpShown = true;
-            }
-        }
+        //private void ShowHelp()
+        //{
+        //    if (ActiveTool != null)
+        //    {
+        //        helpTexts = ActiveTool.GetHelpTexts();
+        //        helpShown = true;
+        //    }
+        //}
 
-        private void BuildCanvas()
-        {
+        //private void BuildCanvas()
+        //{
 
-            var canvas = _Canvas = new GameObject().AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            canvas.transform.SetParent(transform, false);
+        //    var canvas = _Canvas = new GameObject().AddComponent<Canvas>();
+        //    canvas.renderMode = RenderMode.WorldSpace;
+        //    canvas.transform.SetParent(transform, false);
 
-            // Copied straight out of Unity
-            canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 950);
-            canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 950);
-            
-            canvas.transform.localPosition = new Vector3(0, -0.02725995f, 0.0279f);
-            canvas.transform.localRotation = Quaternion.Euler(30, 180, 180);
-            canvas.transform.localScale = new Vector3(4.930151e-05f, 4.930148e-05f, 0);
+        //    // Copied straight out of Unity
+        //    canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 950);
+        //    canvas.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 950);
 
-            canvas.gameObject.layer = 0;
+        //    canvas.transform.localPosition = new Vector3(0f,0f,-0.025f);//(0f, -0.02f, -0.02f);//Vector3(0, -0.02725995f, 0.0279f);
+        //    canvas.transform.localRotation = Quaternion.Euler(120f, 0, 0); ;//Quaternion.Euler(30, 180, 180);
+        //    canvas.transform.localScale = new Vector3(0.00002f, 0.00002f, 0);  //(4.930151e-05f, 4.930148e-05f, 0);
 
-            // Hack for alpha order
-            _AlphaConcealer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _AlphaConcealer.transform.SetParent(transform, false);
-            _AlphaConcealer.transform.localScale = new Vector3(0.05f, 0.0001f, 0.05f);
-            _AlphaConcealer.transform.localPosition = new Vector3(0, -0.0303f, 0.0142f);
-            _AlphaConcealer.transform.localRotation = Quaternion.Euler(60, 0, 0);
-            _AlphaConcealer.GetComponent<Collider>().enabled = false;
-        }
+        //    canvas.gameObject.layer = 0;
+
+        //    // Hack for alpha order
+        //    //_AlphaConcealer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //    //_AlphaConcealer.transform.SetParent(transform, false);
+        //    //_AlphaConcealer.transform.localScale = new Vector3(0.05f, 0.0001f, 0.05f);
+        //    //_AlphaConcealer.transform.localPosition = new Vector3(0, 0f, 0f); //Vector3(0, -0.0303f, 0.0142f);
+        //    //_AlphaConcealer.transform.localRotation = Quaternion.Euler(60, 0, 0);
+        //    //_AlphaConcealer.GetComponent<Collider>().enabled = false;
+        //}
 
         //private void PlaceCanvas()
         //{
@@ -468,40 +434,43 @@ namespace VRGIN.Controls
         //    }
         //}
 
-        private void CreateToolCanvas(Tool tool)
-        {
-            var img = new GameObject().AddComponent<Image>();
-            img.transform.SetParent(_Canvas.transform, false);
+        //private void CreateToolCanvas(Tool tool)
+        //{
+        //    var img = new GameObject().AddComponent<Image>();
+        //    img.transform.SetParent(_Canvas.transform, false);
 
-            var texture = tool.Image;
-            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        //    var texture = tool.Image;
+        //    img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
 
-            // Maximize
-            img.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
-            img.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
+        //    // Maximize
+        //    img.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
+        //    img.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
 
-            img.color = Color.cyan;
+        //    img.color = Color.cyan;
 
 
-            tool.Icon = img.gameObject;
-            tool.Icon.SetActive(false);
-            tool.Icon.layer = 0;
-        }
+        //    tool.Icon = img.gameObject;
+        //    tool.Icon.SetActive(false);
+        //    tool.Icon.layer = 0;
+        //}
 
         public Transform FindAttachPosition(params string[] names)
         {
-            var node = transform.GetComponentsInChildren<Transform>().Where(t => names.Contains(t.name)).FirstOrDefault();
+            var node = transform.GetComponentsInChildren<Transform>(includeInactive: true)
+                .Where(t => names.Contains(t.name))
+                .FirstOrDefault();
             if (node == null) return null;
             return node.Find("attach");
         }
 
         public enum TrackpadDirection
         {
+            // Center = default state.
+            Center,
             Up,
             Down,
             Left,
-            Right,
-            Center,
+            Right
         }
 
         public TrackpadDirection GetTrackpadDirection()

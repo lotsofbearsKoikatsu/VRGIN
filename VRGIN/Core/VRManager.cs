@@ -153,7 +153,8 @@ namespace VRGIN.Core
             HMD = trackingSystem == "oculus" ? HMDType.Oculus : trackingSystem == "lighthouse" ? HMDType.Vive : HMDType.Other;
 
             Application.targetFrameRate = 90;
-            Time.fixedDeltaTime = 1 / 90f;
+            // That's quite a bit of added fixed frames, it's ~50 in default
+            //Time.fixedDeltaTime = 1f / 90f;
             Application.runInBackground = true;
 
             GameObject.DontDestroyOnLoad(SteamVR_Render.instance.gameObject);

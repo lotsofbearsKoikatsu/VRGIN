@@ -153,7 +153,8 @@ namespace VRGIN.Core
         {
             get
             {
-                return LayerMask.GetMask("Default");
+                // Necessary for controller models.
+                return LayerMask.GetMask("Default", "Chara");
             }
         }
 
